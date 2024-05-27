@@ -1,0 +1,66 @@
+.main {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translate(0, -50%);
+    padding: 32px;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.title {
+    font-family: "Roboto", sans-serif;
+    font-weight: 700;
+    font-style: normal;
+    font-size: 32px;
+}
+
+.hint-text {
+    text-align: center;
+    font-size: 14px;
+    color: var(--tg-theme-text-color);
+}
+
+form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.text-input {
+    outline: none;
+    height: 40px;
+    background: bottom center linear-gradient(var(--tg-theme-hint-color), var(--tg-theme-hint-color)) repeat-x;
+    background-size: 1px 1px;
+    margin-bottom: 24px;
+    color: var(--tg-theme-hint-color);
+}
+
+.text-input:hover .text-input:focus {
+    background: bottom center linear-gradient(var(--tg-theme-accent-text-color), var(--tg-theme-accent-text-color)9) repeat-x;
+    background-size: 1px 1px;
+}
+
+input {
+    border: none;
+}
+
+.checkbox-div {
+    position: relative;
+}
+
+#save_data {
+    margin: 0;
+    vertical-align: middle;
+    right: 0;
+    position: absolute;
+}
+
+.checkbox-div:has(label) {
+    display: block;
+    font-family: "Roboto", sans-serif;
+    font-weight: 200;
+    font-style: normal;
+    font-size: 14px;
+}
