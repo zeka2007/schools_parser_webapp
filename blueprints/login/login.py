@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, url_for, request
+from flask import Blueprint, render_template, url_for, request, abort
+from Schoolsby_api import Schools_by
 
 login_dp = Blueprint(
     'login', __name__,
@@ -8,7 +9,11 @@ login_dp = Blueprint(
 
 
 @login_dp.route('/', methods = ['GET', 'POST'])
-def index():
+async def index():
     if request.method == 'POST':
-        return request.get_json()['login'] + ' maybe ok'
+        data = request.get_json()
+        user: Schools_by.Student = await Schools_by.WebUser().login_user(data['login'], data['password'])
+        if user is None:
+            return abort(403)
+        return str(user.student_id)
     return render_template("login.html")

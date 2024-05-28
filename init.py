@@ -1,3 +1,6 @@
+__all__ = ['Schoolsby_api', 'config']
+import Schoolsby_api
+import config
 from flask import Flask
 from blueprints.index.index import index_dp
 from blueprints.login.login import login_dp

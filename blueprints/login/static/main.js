@@ -1,5 +1,6 @@
 const tg = window.Telegram.WebApp;
 const login = document.getElementById('login');
+const form = document.getElementById('form');
 const password = document.getElementById('password');
 const checkbox = document.getElementById('save_data');
 const main_button = tg.MainButton;
@@ -34,15 +35,23 @@ main_button.setParams(
 
 
 main_button.onClick(() => {
+    form.set
     main_button.showProgress(false);
     var xhr = new XMLHttpRequest();
     xhr.open("POST", window.location.href, true);
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.onload = () => {
-        if (xhr.readyState == 4 && xhr.status == 200) {
-            main_button.hideProgress();
-            tg.sendData(xhr.responseText);
-            tg.close();
+        main_button.hideProgress();
+        if (xhr.readyState == 4) {
+            if (xhr.status == 200) {
+                tg.HapticFeedback.notificationOccurred('success');
+                tg.sendData(xhr.responseText);
+                tg.close();
+            }
+            else {
+                tg.HapticFeedback.notificationOccurred('error');
+                tg.showAlert('Ошибка входа!\nПроверьте введенные данные и попробуйте снова.');
+            }
         }
     };
     xhr.send(JSON.stringify({
