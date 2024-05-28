@@ -57,7 +57,7 @@ main_button.onClick(() => {
     xhr.send(JSON.stringify({
         'login': login.value,
         'password': password.value,
-        'save_login_data': checkbox.value
+        'save_login_data': checkbox.checked
     }));
 
 });
