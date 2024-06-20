@@ -17,7 +17,7 @@ function onValueChange(e) {
     else {
         main_button.setParams(
             {
-                'color': '#24A1DE',
+                'color': tg.themeParams.button_color,
                 'is_active': true
             }
         );
@@ -35,10 +35,9 @@ main_button.setParams(
 
 
 main_button.onClick(() => {
-    form.set
     main_button.showProgress(false);
     var xhr = new XMLHttpRequest();
-    xhr.open("POST", window.location.href, true);
+    xhr.open("POST", window.location.protocol + '//' + window.location.host + '/api/login', true);
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.onload = () => {
         main_button.hideProgress();

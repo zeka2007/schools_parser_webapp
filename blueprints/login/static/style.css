@@ -6,17 +6,7 @@
     justify-content: space-between;
 }
 .title {
-    font-family: "Roboto", sans-serif;
-    font-weight: 700;
-    font-style: normal;
     font-size: xx-large;
-}
-
-.hint-text {
-    text-align: center;
-    font-size: medium;
-    margin: 24px 0;
-    color: var(--tg-theme-text-color);
 }
 
 .text-input {

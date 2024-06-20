@@ -32,8 +32,6 @@ class Student(BaseModel):
 
     lessons_cache = Column(ARRAY(VARCHAR), unique=False, nullable=True)
 
-    is_block: Mapped[bool] = Column(Boolean, unique=False, nullable=False, default=False)
-
     update_alarm_state: Mapped[bool] = mapped_column(Boolean, unique=False, default=False)
     newsletters_alarm_state: Mapped[bool] = mapped_column(Boolean, unique=False, default=False)
     alarm_range_type: Mapped[int] = Column(Integer, unique=False, default=0)

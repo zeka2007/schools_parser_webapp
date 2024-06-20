@@ -4,6 +4,7 @@ __all__ = ['BaseModel', 'Student', 'Message',
 from sqlalchemy import URL
 
 from flask_sqlalchemy import SQLAlchemy
+from Schoolsby_api.Schools_by import Student as WebStudent
 
 import config
 from .base import BaseModel
@@ -20,3 +21,13 @@ db_url = URL.create(
     )
 
 database = SQLAlchemy()
+
+def get_schoolsby_student(student: Student) -> WebStudent:
+    return WebStudent(
+            student.login,
+            student.password,
+            student.csrf_token,
+            student.session_id,
+            student.site_prefix,
+            student.student_id,
+        )

@@ -2,12 +2,19 @@ body {
     background: var(--tg-theme-bg-color);
     color: var(--tg-theme-text-color);
 }
-.container {
-    max-width: 390px;
-}
+
+
+/* Text style */
+
 .hint-text {
     font-family: "Roboto", sans-serif;
-    font-weight: 200;
+    font-weight: 300;
+    font-style: normal;
+    color: var(--tg-theme-hint-color);
+}
+.default-text {
+    font-family: "Roboto", sans-serif;
+    font-weight: 700;
     font-style: normal;
 }
 

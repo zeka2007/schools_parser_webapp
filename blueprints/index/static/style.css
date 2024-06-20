@@ -1,0 +1,59 @@
+.header {
+    height: 60px;
+    display: flex;
+    justify-content: center;
+}
+
+.title {
+    text-align: center;
+    display: flex;
+}
+.title-text {
+    align-self: center;
+    cursor: pointer;
+}
+
+.user-info {
+    margin-right: 8px;
+}
+
+.average-mark {
+    display: flex;
+    justify-content: center;
+}
+
+.average-mark-data {
+    margin: 60px 0;
+    text-align: center;
+}
+
+.mark {
+    font-size: 64px;
+    margin: 0;
+}
+
+
+.item {
+    align-items: center;
+    display: flex;
+}
+
+.item-icon {
+    margin: 12px;
+    font-size: 36px;
+}
+
+.item-text {
+    justify-self: center;
+}
+
+.mark-green {
+    color: #599F00;
+}
+.mark-purpure {
+    color: #9618D1;
+}
+
+.mark-red {
+    color: #d11818;
+}

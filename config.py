@@ -9,4 +9,6 @@ postgres_db_name = os.getenv("POSTGRES_DB")
 postgres_port = os.getenv("POSTGRES_PORT")
 postgres_host = os.getenv("POSTGRES_HOST")
 
+bot_token = os.getenv("BOT_TOKEN")
+
 debug = True

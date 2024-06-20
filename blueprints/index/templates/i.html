@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('index.static', filename='style.css') }}">
+    
+    <link rel="stylesheet" href="../static/style.css">
+    <link rel="stylesheet" href="../../../static/style.css">
+</head>
+<body>
+    <script>window.Telegram.WebApp.ready()</script>
+    <div class="container">
+       <!-- <div class="header">
+            <div class="title">
+                <span class="default-text title-text user-info">SCHOOLS.BY/555555</span>
+                <i class="material-symbols-outlined title-text">keyboard_arrow_down</i>
+            </div>
+       </div> -->
+       <div class="stat-content">
+            <div class="average-mark">
+                <div class="average-mark-data">
+                    <p class="default-text mark">8.5</p>
+                    <span class="hint-text mark-under">Средний бал</span>
+                </div>
+            </div>
+            <div class="stat-items">
+                <div class="item">
+                    <span class="material-symbols-outlined item-icon">
+                        menu_book
+                    </span>
+                    <span class="default-text item-text">Лучший предмет: Матем. 
+                        (<span class="mark-green">9</span>)</span>
+                    
+                </div>
+                <div class="item">
+                    <span class="material-symbols-outlined item-icon">
+                        star
+                    </span>
+                    <span class="default-text item-text">Самая частая отметка: 
+                        <span class="mark-red">3</span>
+                    </span>
+                </div>
+                <div class="item">
+                    <span class="material-symbols-outlined item-icon">
+                        tag
+                    </span>
+                    <span class="default-text item-text">Количество отметок: 34</span>
+                </div>
+            </div>
+       </div>
+    </div>
+    <script src="{{url_for('index.static', filename='main.js')}}"></script>
+</body>
+</html>
