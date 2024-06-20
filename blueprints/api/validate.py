@@ -1,11 +1,5 @@
 import hmac
 import hashlib
-from urllib.parse import unquote
-
-
-def data_to_dict(init_data: str) -> dict:
-     print(init_data)
-     return {k: unquote(v) for k, v in [s.split('=', 1) for s in init_data.split('&')]}
      
 
 def validate_init_data(init_data: dict, bot_token: str):

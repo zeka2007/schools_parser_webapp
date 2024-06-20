@@ -11,11 +11,15 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="{{ url_for('index.static', filename='style.css') }}">
     
-    <link rel="stylesheet" href="../static/style.css">
-    <link rel="stylesheet" href="../../../static/style.css">
+    <!-- <link rel="stylesheet" href="../static/style.css">
+    <link rel="stylesheet" href="../../../static/style.css"> -->
 </head>
 <body>
     <script>window.Telegram.WebApp.ready()</script>
+    <div class="loading-screen" id="preloader">
+        <div class="loader"></div>
+    </div>
+    
     <div class="container">
        <!-- <div class="header">
             <div class="title">
@@ -26,7 +30,7 @@
        <div class="stat-content">
             <div class="average-mark">
                 <div class="average-mark-data">
-                    <p class="default-text mark">8.5</p>
+                    <p class="default-text mark" id="average-mark-id">8.5</p>
                     <span class="hint-text mark-under">Средний бал</span>
                 </div>
             </div>
@@ -35,8 +39,8 @@
                     <span class="material-symbols-outlined item-icon">
                         menu_book
                     </span>
-                    <span class="default-text item-text">Лучший предмет: Матем. 
-                        (<span class="mark-green">9</span>)</span>
+                    <span class="default-text item-text">Лучший предмет: <span id="best-lesson"></span>
+                        (<span id="best-lesson-average-mark"></span>)</span>
                     
                 </div>
                 <div class="item">
@@ -44,18 +48,21 @@
                         star
                     </span>
                     <span class="default-text item-text">Самая частая отметка: 
-                        <span class="mark-red">3</span>
+                        <span id="most-common-mark">3</span>
                     </span>
                 </div>
                 <div class="item">
                     <span class="material-symbols-outlined item-icon">
                         tag
                     </span>
-                    <span class="default-text item-text">Количество отметок: 34</span>
+                    <span class="default-text item-text">Количество отметок: 
+                        <span id="marks-count"></span>
+                    </span>
                 </div>
             </div>
        </div>
     </div>
     <script src="{{url_for('index.static', filename='main.js')}}"></script>
+    <script src="{{url_for('static', filename='main.js')}}"></script>
 </body>
 </html>

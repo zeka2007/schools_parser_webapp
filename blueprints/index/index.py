@@ -1,4 +1,4 @@
-from flask import Blueprint, url_for, render_template, request
+from flask import Blueprint, url_for, render_template
 
 index_dp = Blueprint('index',
                         __name__,
