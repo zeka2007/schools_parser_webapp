@@ -1,5 +1,6 @@
 from flask import Blueprint, request, abort
 import json
+
 from Schoolsby_api import Schools_by
 
 
@@ -7,6 +8,7 @@ login_api_dp = Blueprint('login_api',
                     __name__)
 
 @login_api_dp.route('/', methods = ['GET', 'POST'])
+# @cross_origin()
 async def index():
     data = request.get_json()
     user: Schools_by.Student = await Schools_by.WebUser().login_user(data['login'], data['password'])

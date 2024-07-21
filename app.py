@@ -7,15 +7,17 @@ from flask_sqlalchemy import SQLAlchemy
 from blueprints.index.index import index_dp
 from blueprints.login.login import login_dp
 from blueprints.api.main import api_dp
+from flask_cors import CORS
 
 app = Flask(__name__)
 
+CORS(app)
+
 app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['BOT_TOKEN'] = config.bot_token
-
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 database.init_app(app)
-
 
 app.register_blueprint(index_dp, url_prefix='/index')
 app.register_blueprint(login_dp, url_prefix='/login')

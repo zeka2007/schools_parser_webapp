@@ -1,4 +1,4 @@
-from flask import Blueprint, request
+from flask import Blueprint
 from .login_api import login_api_dp
 from .user_api import user_api_dp
 
