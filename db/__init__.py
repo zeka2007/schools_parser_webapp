@@ -1,15 +1,11 @@
-__all__ = ['BaseModel', 'Student', 'Message',
-           'session_maker', 'create_database', 'async_engine']
+__all__ = ['database']
 
 from sqlalchemy import URL
 
 from flask_sqlalchemy import SQLAlchemy
-from Schoolsby_api.Schools_by import Student as WebStudent
 
 import config
-from .base import BaseModel
-from .student import Student
-from .messages import Message
+
 
 db_url = URL.create(
         "postgresql",
@@ -21,13 +17,3 @@ db_url = URL.create(
     )
 
 database = SQLAlchemy()
-
-def get_schoolsby_student(student: Student) -> WebStudent:
-    return WebStudent(
-            student.login,
-            student.password,
-            student.csrf_token,
-            student.session_id,
-            student.site_prefix,
-            student.student_id,
-        )

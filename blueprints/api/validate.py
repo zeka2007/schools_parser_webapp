@@ -1,3 +1,4 @@
+import json
 from urllib.parse import unquote
 import hmac
 import hashlib
@@ -24,6 +25,8 @@ def validate(fun):
      async def wrapper(*args, **kwargs):
           data = convert_to_dict(request.headers['Authorization'])
           if validate_init_data(data, config.bot_token):
+               data['user'] = json.loads(data['user'])
+               kwargs['tg_data'] = data
                return await fun(*args, **kwargs)
           return abort(400)
           
