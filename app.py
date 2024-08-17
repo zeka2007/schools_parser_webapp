@@ -3,7 +3,7 @@ import Schoolsby_api
 import config
 from db import db_url, database
 from flask import Flask
-from blueprints.api.main import api_dp
+from blueprints.main import api_dp
 from flask_cors import CORS
 
 app = Flask(__name__)

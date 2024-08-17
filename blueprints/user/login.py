@@ -5,7 +5,8 @@ import json
 from sqlalchemy import exists
 
 from Schoolsby_api import Schools_by
-from . import validate
+from blueprints.diary.create import is_main_diary
+from .. import validate
 from db import database
 from db.diary import Diary, get_schoolsby_student
 from db.virtual_diary import VirtualDiary
@@ -20,8 +21,6 @@ login_api_dp = Blueprint('login_api',
 async def index(tg_data):
     login_data = request.get_json()
     session = database.session
-
-    # print(tg_data)
 
     user: Schools_by.Student | None = await Schools_by.WebUser().login_user(login_data['login'], login_data['password'])
     
@@ -44,13 +43,6 @@ async def index(tg_data):
 
     db_student = session.query(student.Student).where(student.Student.user_id == user_id).one_or_none()
 
-    #TODO:
-
-    db_virtual_diary = session.query(VirtualDiary).where(
-            VirtualDiary.attached_to == user_id
-        ).where(
-            VirtualDiary.is_main == False
-        )
 
     if db_student is None:
         session.add(
@@ -58,6 +50,10 @@ async def index(tg_data):
                 user_id=user_id,
             )
         )
+
+    is_main = is_main_diary(session, user_id)
+
+    id = None
 
     if db_diary is not None:
 
@@ -67,21 +63,31 @@ async def index(tg_data):
         db_diary.session_id=user.session_id
         db_diary.student_id=user.student_id
         db_diary.site_prefix=user.site_prefix
+        db_diary.is_main = is_main
+
+        id = db_diary._id
+
+        database.session.commit()
 
     else:
+        diary = Diary(
+                        attached_to=user_id,
+                        login=user.login,
+                        password=user.password,
+                        csrf_token=user.csrf_token,
+                        session_id=user.session_id,
+                        student_id=user.student_id,
+                        site_prefix=user.site_prefix,
+                        is_main=is_main
+                    )
 
-        session.add(
-            Diary(
-                attached_to=user_id,
-                login=user.login,
-                password=user.password,
-                csrf_token=user.csrf_token,
-                session_id=user.session_id,
-                student_id=user.student_id,
-                site_prefix=user.site_prefix
-            )
-        )
+        session.add(diary)
 
-    database.session.commit()
+        database.session.commit()
+
+        database.session.flush()
+        database.session.refresh(diary)
+
+        id = diary._id
     
-    return json.dumps(user.__dict__)
+    return json.dumps({'id':id})

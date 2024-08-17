@@ -1,0 +1,2 @@
+VIRTUAL_DIARY = 'Виртуальный дневник'
+SCHOOLS_BY_DIARY = 'SCHOOLS.BY'
