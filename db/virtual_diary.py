@@ -13,6 +13,8 @@ class VirtualDiary(database.Model):
 
     name: Mapped[str] = mapped_column(VARCHAR, nullable=False, unique=False)
     is_main: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    quarter: Mapped[int] = mapped_column(Integer, unique=False, default=1)
+    
     # lessons_ids = Column(ARRAY(BigInteger), unique=False, nullable=True)
     
     def __str__(self) -> str:

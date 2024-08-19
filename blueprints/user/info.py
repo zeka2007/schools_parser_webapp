@@ -6,6 +6,7 @@ from sqlalchemy import select
 from Schoolsby_api import Schools_by
 from Schoolsby_api.Schools_by.MarksManager import Mark, SplitMark
 from blueprints.diary.consts import VIRTUAL_DIARY, SCHOOLS_BY_DIARY
+from db.lessons import Lesson
 from db.virtual_diary import VirtualDiary
 from .. import validate
 from db import database
@@ -16,7 +17,7 @@ user_info_api_dp = Blueprint('user_info', __name__)
 
 @user_info_api_dp.route('/')
 @validate.validate
-async def get_user_data(tg_data):
+async def index(tg_data):
 
     d_type = request.args.get('type')
     d_id = request.args.get('id')
@@ -46,12 +47,27 @@ async def get_user_data(tg_data):
 
             if v_diary is None: 
                 return abort(404)
+            
+        v_lessons = session.scalars(select(Lesson).where(Lesson.attached_to_diary == v_diary._id)).all()
+
+        for l in v_lessons:
+            v_marks = []
+
+            print(l.marks)
+
+            for m in l.marks[v_diary.quarter - 1]:
+                v_marks.append(m)
+
+            lessons.append({
+                        'lesson_name': l.name,
+                        'marks': v_marks
+                    })
         
         return_data = {
             'user': {
                 'type': VIRTUAL_DIARY,
                 'description': v_diary.name,
-                'quarter': 0,
+                'quarter': v_diary.quarter,
                 'main_now': v_diary.is_main,
                 'diary_id': v_diary._id
             },

@@ -21,7 +21,7 @@ def is_main_diary(session, user_id: int) -> bool:
 
 @create_diary_dp.route('/', methods=['POST'])
 @validate.validate
-async def get_user_data(tg_data):
+async def index(tg_data):
     session = database.session
     data = request.get_json()
     user_id = tg_data['user']['id']

@@ -14,7 +14,7 @@ update_diary_dp = Blueprint('diary_update', __name__)
 
 @update_diary_dp.route('/', methods=['POST'])
 @validate.validate
-async def get_user_data(tg_data):
+async def index(tg_data):
     session = database.session
     data = request.get_json()
     user_id = tg_data['user']['id']
@@ -31,6 +31,15 @@ async def get_user_data(tg_data):
         session.execute(update(VirtualDiary).where(VirtualDiary.attached_to == user_id).where(VirtualDiary.is_main == True).values(is_main = False))
 
         diary.is_main = data.get('is_main')
-        session.commit()
+
+    if data.get('other') is not None:
+        for key in data['other'].keys():
+            diary.__dict__[key] = data['other'][key]
+
+            print(diary.name)
+
+
+            session.commit()
+    
 
     return ''

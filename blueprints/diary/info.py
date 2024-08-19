@@ -13,7 +13,7 @@ diary_info_dp = Blueprint('diary_info', __name__)
 
 @diary_info_dp.route('/')
 @validate.validate
-async def get_user_data(tg_data):
+async def index(tg_data):
     session = database.session
     user_id = tg_data['user']['id']
 
