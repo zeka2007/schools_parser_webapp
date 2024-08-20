@@ -1,6 +1,9 @@
 import json
 from flask import Blueprint, request
 from sqlalchemy import delete
+
+from db.lesson import Lesson
+from db.mark import Mark
 from .consts import VIRTUAL_DIARY, SCHOOLS_BY_DIARY
 from .. import validate
 from db import database
@@ -22,6 +25,10 @@ async def index(tg_data):
 
     if data['type'] == VIRTUAL_DIARY:
         session.execute(delete(VirtualDiary).where(VirtualDiary._id == data['id']).where(VirtualDiary.attached_to == user_id))
+        lessons = session.query(Lesson).where(Lesson.attached_to_diary == data['id']).all()
+        for lesson in lessons:
+            session.execute(delete(Mark).where(Mark.attached_to_lesson == lesson._id))
+        session.execute(delete(Lesson).where(Lesson.attached_to_diary == data['id']))
     elif data['type'] == SCHOOLS_BY_DIARY:
         session.execute(delete(Diary).where(Diary._id == data['id']).where(Diary.attached_to == user_id))
 

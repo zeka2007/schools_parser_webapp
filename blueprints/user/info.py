@@ -6,12 +6,13 @@ from sqlalchemy import select
 from Schoolsby_api import Schools_by
 from Schoolsby_api.Schools_by.MarksManager import Mark, SplitMark
 from blueprints.diary.consts import VIRTUAL_DIARY, SCHOOLS_BY_DIARY
-from db.lessons import Lesson
+from db.lesson import Lesson
 from db.virtual_diary import VirtualDiary
 from .. import validate
 from db import database
 from db.student import Student
 from db.diary import Diary, get_schoolsby_student
+from db.mark import Mark as DBMark
 
 user_info_api_dp = Blueprint('user_info', __name__)
 
@@ -53,15 +54,23 @@ async def index(tg_data):
         for l in v_lessons:
             v_marks = []
 
-            print(l.marks)
+            quarter_arg = request.args.get('quarter')
 
-            for m in l.marks[v_diary.quarter - 1]:
-                v_marks.append(m)
+            q = int(quarter_arg) if quarter_arg is not None else v_diary.quarter
 
-            lessons.append({
-                        'lesson_name': l.name,
-                        'marks': v_marks
-                    })
+            marks = session.scalars(select(DBMark).where(DBMark.attached_to_lesson == l._id).where(DBMark.quarter == q)).all()
+            for v_mark in marks:
+                marks_d = v_mark.__dict__
+                marks_d.pop('_sa_instance_state')
+                marks_d.pop('quarter')
+                marks_d['date'] = v_mark.date.strftime('%Y-%m-%d')
+                v_marks.append(marks_d)
+
+            if len(v_marks) > 0:
+                lessons.append({
+                            'lesson_name': l.name,
+                            'marks': v_marks
+                        })
         
         return_data = {
             'user': {

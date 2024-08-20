@@ -2,7 +2,6 @@ import json
 from flask import Blueprint, request
 from sqlalchemy import update
 from .consts import VIRTUAL_DIARY, SCHOOLS_BY_DIARY
-from db import student, lessons
 from .. import validate
 from db import database
 from db.virtual_diary import VirtualDiary

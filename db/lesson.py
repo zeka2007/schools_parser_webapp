@@ -14,7 +14,7 @@ class Lesson(database.Model):
     name: Mapped[str] = mapped_column(VARCHAR, nullable=False, unique=False)
     attached_to_diary: Mapped[int] = mapped_column(BigInteger, unique=False, nullable=False)
 
-    marks = mapped_column(JSONB, unique=False)
+    # marks = mapped_column(JSONB, unique=False)
 
 
     def __str__(self) -> str:

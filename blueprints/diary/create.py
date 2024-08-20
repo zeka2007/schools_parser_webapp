@@ -1,6 +1,6 @@
 import json
 from flask import Blueprint, request
-from db import student, lessons
+from db import student
 from .. import validate
 from db import database
 from db.virtual_diary import VirtualDiary

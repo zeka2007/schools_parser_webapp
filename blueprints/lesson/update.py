@@ -4,7 +4,7 @@ from sqlalchemy import update
 from .. import validate
 from db import database
 from db.virtual_diary import VirtualDiary
-from db.lessons import Lesson
+from db.lesson import Lesson
 
 
 update_lesson_dp = Blueprint('lesson_update', __name__)

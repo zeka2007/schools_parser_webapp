@@ -5,7 +5,7 @@ from db import student
 from .. import validate
 from db import database
 from db.virtual_diary import VirtualDiary
-from db.lessons import Lesson
+from db.lesson import Lesson
 
 
 create_lesson_dp = Blueprint('lesson_create', __name__)
@@ -22,12 +22,11 @@ async def index(tg_data):
 
     lesson: Lesson = Lesson(
         name=data['name'],
-        attached_to_diary=diary._id,
-        marks=[[], [], [], []]
+        attached_to_diary=diary._id
     )
 
     session.add(lesson)
-
+    
     session.commit()
     session.flush()
     session.refresh(lesson)
