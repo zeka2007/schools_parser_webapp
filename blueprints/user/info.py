@@ -5,7 +5,7 @@ import json
 from sqlalchemy import select
 from Schoolsby_api import Schools_by
 from Schoolsby_api.Schools_by.MarksManager import Mark, SplitMark
-from blueprints.diary.consts import VIRTUAL_DIARY, SCHOOLS_BY_DIARY
+from blueprints.diary.consts import SCHOOLS_BY_DIARY_INT, VIRTUAL_DIARY, SCHOOLS_BY_DIARY, VIRTUAL_DIARY_INT
 from db.lesson import Lesson
 from db.virtual_diary import VirtualDiary
 from .. import validate
@@ -30,9 +30,9 @@ async def index(tg_data):
     user = None
 
     if (d_type and d_id):
-        if d_type == '0':
+        if d_type == SCHOOLS_BY_DIARY_INT:
             user = session.scalars(select(Diary).where(Diary.attached_to == user_id).where(Diary._id == int(d_id))).first()
-        elif d_type == '1':
+        elif d_type == VIRTUAL_DIARY_INT:
             v_diary = session.scalars(select(VirtualDiary).where(VirtualDiary.attached_to == user_id).where(VirtualDiary._id == int(d_id))).first()
 
     else:
@@ -51,6 +51,8 @@ async def index(tg_data):
             
         v_lessons = session.scalars(select(Lesson).where(Lesson.attached_to_diary == v_diary._id)).all()
 
+        converted_marks = []
+
         for l in v_lessons:
             v_marks = []
 
@@ -64,6 +66,11 @@ async def index(tg_data):
                 marks_d.pop('_sa_instance_state')
                 marks_d.pop('quarter')
                 marks_d['date'] = v_mark.date.strftime('%Y-%m-%d')
+                if v_mark.first_value is not None:
+                    converted_marks.append(v_mark.first_value)
+                    if v_mark.second_value:
+                        converted_marks.append(v_mark.second_value)
+
                 v_marks.append(marks_d)
 
             if len(v_marks) > 0:
@@ -145,18 +152,13 @@ async def index(tg_data):
             'lessons': lessons
         }
 
-        if len(converted_marks) > 0: 
-            best_lesson = max(list(lessons_dict.items()), key=lambda x: sum([it['first_value'] for it in x[1]]))[0]
-            return_data.update(
-                {
-                    'average_mark': round(sum(converted_marks)/len(converted_marks), 2),
-                    'most_common': max(set(converted_marks), key=converted_marks.count),
-                    'marks_count': len(converted_marks),
-                    'best_lesson': {
-                        'lesson': best_lesson,
-                        'average_mark': round(sum(lessons_dict[best_lesson])/len(lessons_dict[best_lesson]), 2)
-                    }
-                }
-            )
+    if len(converted_marks) > 0: 
+        return_data.update(
+            {
+                'average_mark': round(sum(converted_marks)/len(converted_marks), 2),
+                'most_common': max(set(converted_marks), key=converted_marks.count),
+                'marks_count': len(converted_marks)
+            }
+        )
 
     return json.dumps(return_data), {'Content-Type': 'application/json; charset=utf-8'}
