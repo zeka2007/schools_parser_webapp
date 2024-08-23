@@ -147,7 +147,8 @@ async def index(tg_data):
                 'description': web_student.student_id,
                 'quarter': quarter,
                 'main_now': user.is_main,
-                'diary_id': user._id
+                'diary_id': user._id,
+                'is_login_date_saved': user.login is not None and user.password is not None
             },
             'lessons': lessons
         }

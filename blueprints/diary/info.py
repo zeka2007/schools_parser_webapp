@@ -39,7 +39,8 @@ async def index(tg_data):
             {
                 'type': diary_type,
                 'name': name,
-                'id': diary._id
+                'id': diary._id,
+                'is_main': diary.is_main
             }
         )
 

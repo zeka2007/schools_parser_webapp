@@ -18,12 +18,11 @@ scheduler = APScheduler()
 app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['BOT_TOKEN'] = config.bot_token
 app.config['CORS_HEADERS'] = 'Content-Type'
-app.config['SCHEDULER_API_ENABLED'] = True
 
 database.init_app(app)
 scheduler.init_app(app)
 
-@scheduler.task('interval', id='autoremove_reports', seconds=10)
+@scheduler.task('interval', id='autoremove_reports', hours=1)
 def autoremove_reports():
     current_date = datetime.now()
     for file in os.listdir(SAVE_PATH):

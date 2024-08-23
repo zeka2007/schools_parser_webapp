@@ -35,10 +35,8 @@ async def index(tg_data):
         for key in data['other'].keys():
             diary.__dict__[key] = data['other'][key]
 
-            print(diary.name)
 
-
-            session.commit()
+    session.commit()
     
 
     return ''
