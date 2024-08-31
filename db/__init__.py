@@ -1,14 +1,14 @@
-__all__ = ['database']
+__all__ = ['Base']
 
 from sqlalchemy import URL
-
-from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import declarative_base, sessionmaker
 
 import config
 
 
 db_url = URL.create(
-        "postgresql",
+        "postgresql+asyncpg",
         username=config.postgres_username,
         password=config.postgres_password,
         host=config.postgres_host,
@@ -16,4 +16,19 @@ db_url = URL.create(
         database=config.postgres_db_name
     )
 
-database = SQLAlchemy()
+engine = create_async_engine(db_url)
+Base = declarative_base()
+async_session = sessionmaker(
+    engine, class_=AsyncSession, expire_on_commit=False
+)
+
+
+async def init_models():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
+
+
+async def get_session():
+    async with async_session() as session:
+        yield session

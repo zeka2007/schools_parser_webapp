@@ -2,10 +2,10 @@
 from sqlalchemy import func, BigInteger, ARRAY, VARCHAR, Column, Integer, Boolean
 from sqlalchemy.orm import Mapped, mapped_column
 
-from . import database
+from . import Base
 
 
-class VirtualDiary(database.Model):
+class VirtualDiary(Base):
     __tablename__ = "virtual_diaries"
 
     _id: Mapped[int] = mapped_column(BigInteger, unique=True, nullable=False, primary_key=True)

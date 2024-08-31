@@ -1,24 +1,25 @@
 import json
-from flask import Blueprint, request
+from fastapi import APIRouter, Depends
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from .consts import VIRTUAL_DIARY, SCHOOLS_BY_DIARY
-from db import student
+from db import get_session
 from .. import validate
-from db import database
 from db.virtual_diary import VirtualDiary
 from db.diary import Diary
 
 
-diary_info_dp = Blueprint('diary_info', __name__)
+diary_info_dp = APIRouter()
 
 
-@diary_info_dp.route('/')
-@validate.validate
-async def index(tg_data):
-    session = database.session
+@diary_info_dp.get('/')
+async def get_diaries_data(tg_data = Depends(validate.validate), session: AsyncSession = Depends(get_session)):
     user_id = tg_data['user']['id']
 
-    diaries = session.query(Diary).where(Diary.attached_to == user_id).all()
-    virtual_diaries = session.query(VirtualDiary).where(VirtualDiary.attached_to == user_id).all()
+    diaries_result = await session.execute(select(Diary).where(Diary.attached_to == user_id))
+    diaries = diaries_result.scalars().all()
+    virtual_diaries_result = await session.execute(select(VirtualDiary).where(VirtualDiary.attached_to == user_id))
+    virtual_diaries = virtual_diaries_result.scalars().all()
 
     data = []
 
@@ -44,4 +45,4 @@ async def index(tg_data):
             }
         )
 
-    return json.dumps(data), {'Content-Type': 'application/json; charset=utf-8'}
+    return data

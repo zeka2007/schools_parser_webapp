@@ -1,66 +1,73 @@
-from datetime import datetime
-from flask import Blueprint, abort, request
-import json
+from fastapi import APIRouter, Depends, HTTPException
 
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from Schoolsby_api import Schools_by
 from Schoolsby_api.Schools_by.MarksManager import Mark, SplitMark
-from blueprints.diary.consts import SCHOOLS_BY_DIARY_INT, VIRTUAL_DIARY, SCHOOLS_BY_DIARY, VIRTUAL_DIARY_INT
+from api.diary.consts import SCHOOLS_BY_DIARY_INT, VIRTUAL_DIARY, SCHOOLS_BY_DIARY, VIRTUAL_DIARY_INT
 from db.lesson import Lesson
 from db.virtual_diary import VirtualDiary
 from .. import validate
-from db import database
-from db.student import Student
+from db import get_session
 from db.diary import Diary, get_schoolsby_student
 from db.mark import Mark as DBMark
 
-user_info_api_dp = Blueprint('user_info', __name__)
+user_info_api_dp = APIRouter()
 
-@user_info_api_dp.route('/')
-@validate.validate
-async def index(tg_data):
+@user_info_api_dp.get('/')
+async def get_user_data(
+    type: int = None,
+    id: int = None,
+    quarter: int = None,
+    tg_data = Depends(validate.validate),
+    session: AsyncSession = Depends(get_session)):
 
-    d_type = request.args.get('type')
-    d_id = request.args.get('id')
+    d_type = type
+    d_id = id
+    quarter_arg = quarter
 
     user_id = tg_data['user']['id']
-    session = database.session
 
     v_diary = None
     user = None
 
-    if (d_type and d_id):
+
+    if (d_type is not None and d_id is not None):
         if d_type == SCHOOLS_BY_DIARY_INT:
-            user = session.scalars(select(Diary).where(Diary.attached_to == user_id).where(Diary._id == int(d_id))).first()
+            user_result = await session.execute(select(Diary).where(Diary.attached_to == user_id).where(Diary._id == int(d_id)))
+            user = user_result.scalars().first()
         elif d_type == VIRTUAL_DIARY_INT:
-            v_diary = session.scalars(select(VirtualDiary).where(VirtualDiary.attached_to == user_id).where(VirtualDiary._id == int(d_id))).first()
+            v_diary_result = await session.execute(select(VirtualDiary).where(VirtualDiary.attached_to == user_id).where(VirtualDiary._id == int(d_id)))
+            v_diary = v_diary_result.scalars().first()
 
     else:
-        user = session.scalars(select(Diary).where(Diary.attached_to == user_id).where(Diary.is_main == True)).first()
+        user_result = await session.scalars(select(Diary).where(Diary.attached_to == user_id).where(Diary.is_main == True))
+        user = user_result.first()
 
     lessons = []
     lessons_dict = {}
 
-    
+
     if user is None: 
         if v_diary is None:
-            v_diary = session.scalars(select(VirtualDiary).where(VirtualDiary.attached_to == user_id).where(VirtualDiary.is_main == True)).first()
+            v_diary_result = await session.scalars(select(VirtualDiary).where(VirtualDiary.attached_to == user_id).where(VirtualDiary.is_main == True))
+            v_diary = v_diary_result.first()
 
             if v_diary is None: 
-                return abort(404)
+                raise HTTPException(status_code=404)
             
-        v_lessons = session.scalars(select(Lesson).where(Lesson.attached_to_diary == v_diary._id)).all()
+        v_lessons_result = await session.scalars(select(Lesson).where(Lesson.attached_to_diary == v_diary._id))
+        v_lessons = v_lessons_result.all()
 
         converted_marks = []
 
         for l in v_lessons:
             v_marks = []
 
-            quarter_arg = request.args.get('quarter')
-
             q = int(quarter_arg) if quarter_arg is not None else v_diary.quarter
 
-            marks = session.scalars(select(DBMark).where(DBMark.attached_to_lesson == l._id).where(DBMark.quarter == q)).all()
+            marks_result = await session.scalars(select(DBMark).where(DBMark.attached_to_lesson == l._id).where(DBMark.quarter == q))
+            marks = marks_result.all()
             for v_mark in marks:
                 marks_d = v_mark.__dict__
                 marks_d.pop('_sa_instance_state')
@@ -94,7 +101,6 @@ async def index(tg_data):
     else:
         web_student: Schools_by.Student = get_schoolsby_student(user)
 
-        quarter_arg = request.args.get('quarter')
         if (quarter_arg is None):
             quarter = await Schools_by.QuarterManager.get_current_quarter(web_student)
         else:
@@ -162,4 +168,4 @@ async def index(tg_data):
             }
         )
 
-    return json.dumps(return_data), {'Content-Type': 'application/json; charset=utf-8'}
+    return return_data

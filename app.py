@@ -1,29 +1,17 @@
-__all__ = ['Schoolsby_api', 'config']
 from datetime import datetime
 import os
-import Schoolsby_api
-import config
-from db import db_url, database
-from flask import Flask
-from blueprints.main import api_dp
-from flask_cors import CORS
-from flask_apscheduler import APScheduler
-from blueprints.diary.report import SAVE_PATH
+import uvicorn
 
-app = Flask(__name__)
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from api.main import api_dp
+from contextlib import asynccontextmanager
+from apscheduler.schedulers.background import BackgroundScheduler
 
-CORS(app)
-scheduler = APScheduler()
+from api.diary.report import SAVE_PATH
 
-app.config['SQLALCHEMY_DATABASE_URI'] = db_url
-app.config['BOT_TOKEN'] = config.bot_token
-app.config['CORS_HEADERS'] = 'Content-Type'
 
-database.init_app(app)
-scheduler.init_app(app)
-
-@scheduler.task('interval', id='autoremove_reports', hours=1)
-def autoremove_reports():
+def check_reports():
     current_date = datetime.now()
     for file in os.listdir(SAVE_PATH):
         m_time = os.path.getmtime(SAVE_PATH + file)
@@ -34,11 +22,27 @@ def autoremove_reports():
         if (hours >= 1): 
             os.remove(SAVE_PATH + file)
 
-scheduler.start()
 
-app.register_blueprint(api_dp, url_prefix='/api')
+@asynccontextmanager
+async def lifespan(app:FastAPI):
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(check_reports,"interval", hours=1)
+    scheduler.start()
+    yield
 
-if __name__ == '__main__':
-    app.run(
-        debug=config.debug
-    )
+app = FastAPI(lifespan=lifespan)
+
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(api_dp)
+
+if __name__ == "__main__":
+    uvicorn.run("app:app", reload=True, port=5000)

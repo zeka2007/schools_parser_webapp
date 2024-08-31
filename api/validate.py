@@ -3,7 +3,7 @@ from urllib.parse import unquote
 import hmac
 import hashlib
 
-from flask import abort, request
+from fastapi import HTTPException, Request
 
 import config
      
@@ -21,13 +21,13 @@ def validate_init_data(init_data: dict, bot_token: str):
      h = hmac.new(secret_key, data_check_string.encode(), hashlib.sha256)
      return h.hexdigest() == init_data['hash']
 
-def validate(fun):
-     async def wrapper(*args, **kwargs):
-          data = convert_to_dict(request.headers['Authorization'])
-          if validate_init_data(data, config.bot_token):
-               data['user'] = json.loads(data['user'])
-               kwargs['tg_data'] = data
-               return await fun(*args, **kwargs)
-          return abort(400)
+def validate(request: Request):
+     data = convert_to_dict(request.headers['Authorization'])
+     if validate_init_data(data, config.bot_token):
+          data['user'] = json.loads(data['user'])
+          return data
+     raise HTTPException(
+          status_code=400,
+          detail='Authorization data incorrect!',
+     )
           
-     return wrapper

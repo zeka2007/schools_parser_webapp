@@ -1,44 +1,53 @@
-import json
 import os
+from typing import List
 import uuid
+from fastapi.responses import FileResponse
 import pandas
-from flask import Blueprint, request, send_file
-
+from fastapi import APIRouter, Depends
+from pydantic import BaseModel
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from Schoolsby_api import Schools_by
 from Schoolsby_api.Schools_by.MarksManager import Mark, SplitMark
 from db.lesson import Lesson
 from .consts import VIRTUAL_DIARY, SCHOOLS_BY_DIARY
-from db import student
+from db import get_session
 from .. import validate
-from db import database
 from db.virtual_diary import VirtualDiary
 from db.diary import Diary, get_schoolsby_student
 from db.mark import Mark as DBMark
 
 
-create_report_dp = Blueprint('diary_create_report', __name__)
-download_report_dp = Blueprint('diary_download_report', __name__)
+report_dp = APIRouter()
 
 SAVE_PATH = './data/reports/'
 
+class CreateReport(BaseModel):
+    type: str
+    id: int
+    quarters: List[int]
 
-@create_report_dp.route('/', methods=['POST'])
-@validate.validate
-async def index(tg_data):
-    session = database.session
+
+@report_dp.post('/create')
+async def create_report(
+        data: CreateReport,
+        tg_data = Depends(validate.validate),
+        session: AsyncSession = Depends(get_session)):
     user_id = tg_data['user']['id']
-    data = request.get_json()
 
-    data['quarters'].sort()
+    data.quarters.sort()
 
     sheets = [{}, {}, {}, {}]
 
-    if data['type'] == VIRTUAL_DIARY:
-        diary_id: int | None = session.query(VirtualDiary._id).where(VirtualDiary.attached_to == user_id).where(VirtualDiary._id == data['id']).scalar()
-        lessons = session.query(Lesson).where(Lesson.attached_to_diary == diary_id).all()
+    if data.type == VIRTUAL_DIARY:
+        diary_id_result = await session.execute(select(VirtualDiary._id).where(VirtualDiary.attached_to == user_id).where(VirtualDiary._id == data.id))
+        diary_id = diary_id_result.scalar()
+        lessons_result = await session.execute(select(Lesson).where(Lesson.attached_to_diary == diary_id))
+        lessons = lessons_result.scalars().all()
         for lesson in lessons:
-            for quarter in data['quarters']:
-                db_marks = session.query(DBMark).where(DBMark.attached_to_lesson == lesson._id).where(DBMark.quarter == quarter).all()
+            for quarter in data.quarters:
+                db_marks_result = await session.execute(select(DBMark).where(DBMark.attached_to_lesson == lesson._id).where(DBMark.quarter == quarter))
+                db_marks = db_marks_result.scalars().all()
                 mark_data = {}
                 for m in db_marks:
                     converted_date = m.date.strftime('%d.%m.%Y')
@@ -53,11 +62,12 @@ async def index(tg_data):
     
 
 
-    elif data['type'] == SCHOOLS_BY_DIARY:
-        diary = session.query(Diary).where(Diary.attached_to == user_id).where(Diary._id == data['id']).first()
+    elif data.type == SCHOOLS_BY_DIARY:
+        diary_result = await session.execute(select(Diary).where(Diary.attached_to == user_id).where(Diary._id == data.id))
+        diary = diary_result.scalars().first()
         web_student: Schools_by.Student = get_schoolsby_student(diary)
 
-        for quarter in data['quarters']:
+        for quarter in data.quarters:
             marks = await Schools_by.MarksManager.get_all_marks(web_student, quarter)
             mark_data = {}
 
@@ -86,13 +96,14 @@ async def index(tg_data):
     i = 1
     for s in sheets:
         if s != {}:
-            print(pandas.DataFrame(s).head())# to_excel(writer, sheet_name=f'Четверть {i}')
+            pandas.DataFrame(s).to_excel(writer, sheet_name=f'Четверть {i}')
         i += 1
 
     writer._save()
             
-    return json.dumps({'file_id': file_id})
+    return {'file_id': file_id}
 
-@download_report_dp.route('/<string:filename>')
-async def index_3(filename):
-    return send_file(os.path.join(SAVE_PATH, f'{filename}.xlsx'), download_name='export.xlsx', as_attachment=True)
+
+@report_dp.get('/download/{filename}')
+async def download_report(filename: str):
+    return FileResponse(path=os.path.join(SAVE_PATH, f'{filename}.xlsx'), filename='export.xlsx')

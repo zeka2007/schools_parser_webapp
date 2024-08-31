@@ -2,9 +2,9 @@ from sqlalchemy import func, BigInteger, ARRAY, VARCHAR, Column, Integer, Boolea
 from sqlalchemy.orm import Mapped, mapped_column
 from Schoolsby_api.Schools_by import Student as WebStudent
 
-from . import database
+from . import Base
 
-class Diary(database.Model):
+class Diary(Base):
     __tablename__ = "diaries"
 
     _id: Mapped[int] = mapped_column(BigInteger, unique=True, nullable=False, primary_key=True)

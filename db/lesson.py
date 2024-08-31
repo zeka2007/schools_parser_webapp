@@ -4,9 +4,9 @@ from sqlalchemy import func, BigInteger, ARRAY, VARCHAR, Column, Integer, Boolea
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.dialects.postgresql import JSONB
 
-from . import database
+from . import Base
 
-class Lesson(database.Model):
+class Lesson(Base):
     __tablename__ = "lessons"
 
     _id: Mapped[int] = mapped_column(BigInteger, unique=True, nullable=False, primary_key=True)

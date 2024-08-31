@@ -4,9 +4,9 @@ from sqlalchemy import Date, func, BigInteger, VARCHAR, Integer
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.dialects.postgresql import JSONB
 
-from . import database
+from . import Base
 
-class Mark(database.Model):
+class Mark(Base):
     __tablename__ = "marks"
 
     _id: Mapped[int] = mapped_column(BigInteger, unique=True, nullable=False, primary_key=True)
