@@ -1,8 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import func, select
+from api.diary.consts import LESSONS_LIST
 from db import get_session, student
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from db.lesson import Lesson
 from .. import validate
 from db.virtual_diary import VirtualDiary
 from db.diary import Diary
@@ -16,6 +19,7 @@ class CreateDiaryExtend(BaseModel):
 
 class CreateDiary(BaseModel):
     name: str
+    createLessons: bool
     extend: CreateDiaryExtend = None
 
 
@@ -69,5 +73,15 @@ async def create_diary(data: CreateDiary, tg_data = Depends(validate.validate), 
     await session.flush()
     await session.refresh(v_diary)
 
+    if data.createLessons:
+        for l_name in LESSONS_LIST:
+            session.add(
+                    Lesson(
+                        name=l_name,
+                        attached_to_diary=v_diary._id
+                    )
+                )
+        await session.commit()
+            
     return {'id': v_diary._id}
         
